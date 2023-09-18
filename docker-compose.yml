@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  elasticsearch:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - xpack.security.enabled=false
+    volumes:
+      - type: volume
+        source: es_data
+        target: /usr/share/elasticsearch/data
+    ports:
+      - target: 9200
+        published: 9200
+    networks:
+      - elastic
+
+  kibana:
+    image: kibana:${STACK_VERSION}
+    container_name: kibana
+    ports:
+      - target: 5601
+        published: 5601
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic      
+
+volumes:
+  es_data:
+    driver: local
+
+networks:
+  elastic:
+    name: elastic
+    driver: bridge
